@@ -8,7 +8,7 @@ resource "aws_security_group" "controller" {
 
   vpc_id = "${local.manage_vpc ? join("", aws_vpc.network.*.id) : var.vpc_id}"
 
-  tags = "${map("Name", "${var.cluster_name}-controller")}"
+  tags = "${map("Name","${var.cluster_name}-controller", "kubernetes.io/cluster/${local.fqdn}", "owned")}"
 }
 
 resource "aws_security_group_rule" "controller-ssh" {
@@ -183,7 +183,7 @@ resource "aws_security_group" "worker" {
 
   vpc_id = "${local.manage_vpc ? join("", aws_vpc.network.*.id) : var.vpc_id}"
 
-  tags = "${map("Name", "${var.cluster_name}-worker")}"
+  tags = "${map("Name", "${var.cluster_name}-worker", "kubernetes.io/cluster/${local.fqdn}", "owned")}"
 }
 
 resource "aws_security_group_rule" "worker-ssh" {

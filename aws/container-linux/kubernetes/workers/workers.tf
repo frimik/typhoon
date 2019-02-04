@@ -32,11 +32,23 @@ resource "aws_autoscaling_group" "workers" {
   # used. Disable wait to avoid issues and align with other clouds.
   wait_for_capacity_timeout = "0"
 
-  tags = [{
-    key                 = "Name"
-    value               = "${var.name}-worker"
-    propagate_at_launch = true
-  }]
+  tags = [
+    {
+      key                 = "Name"
+      value               = "${var.name}-worker"
+      propagate_at_launch = true
+    },
+    {
+      key                 = "k8s.io/cluster-autoscaler/enabled"
+      value               = "yes"
+      propagate_at_launch = false
+    },
+    {
+      key                 = "kubernetes.io/cluster/${var.fqdn}"
+      value               = "true"
+      propagate_at_launch = true
+    },
+  ]
 }
 
 # Worker template
@@ -45,6 +57,8 @@ resource "aws_launch_configuration" "worker" {
   instance_type     = "${var.instance_type}"
   spot_price        = "${var.spot_price}"
   enable_monitoring = false
+
+  iam_instance_profile = "${var.iam_instance_profile}"
 
   user_data = "${data.ct_config.worker-ignition.rendered}"
 
@@ -77,6 +91,7 @@ data "template_file" "worker-config" {
   template = "${file("${path.module}/cl/worker.yaml.tmpl")}"
 
   vars = {
+    cloud_provider         = "${var.cloud_provider}"
     kubeconfig             = "${indent(10, var.kubeconfig)}"
     ssh_authorized_key     = "${var.ssh_authorized_key}"
     cluster_dns_service_ip = "${cidrhost(var.service_cidr, 10)}"

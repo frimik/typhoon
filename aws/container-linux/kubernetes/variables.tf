@@ -5,6 +5,12 @@ variable "cluster_name" {
 
 # AWS
 
+variable "cloud_provider" {
+  type        = "string"
+  description = "Name of the cloud provider to start kubelet with (e.g. aws). Empty for none."
+  default     = ""
+}
+
 variable "dns_zone" {
   type        = "string"
   description = "AWS Route53 DNS Zone (e.g. aws.example.com)"
@@ -157,4 +163,6 @@ variable "public_subnets" {
 
 locals {
   manage_vpc = "${var.vpc_id == "" ? 1 : 0}"
+  dns_zone   = "${replace(var.dns_zone, "/[.]$/", "")}"
+  fqdn       = "${format("%s.%s", var.cluster_name, local.dns_zone)}"
 }

@@ -18,14 +18,17 @@ resource "aws_route53_record" "etcds" {
 resource "aws_instance" "controllers" {
   count = "${var.controller_count}"
 
-  tags = {
-    Name = "${var.cluster_name}-controller-${count.index}"
-  }
+  tags = "${map(
+    "Name", "${var.cluster_name}-controller-${count.index}",
+    "kubernetes.io/cluster/${local.fqdn}", "true",
+  )}"
 
   instance_type = "${var.controller_type}"
 
   ami       = "${local.ami_id}"
   user_data = "${element(data.ct_config.controller-ignitions.*.rendered, count.index)}"
+
+  iam_instance_profile = "${aws_iam_instance_profile.controller.name}"
 
   # storage
   root_block_device {
@@ -73,6 +76,7 @@ data "template_file" "controller-configs" {
     ssh_authorized_key     = "${var.ssh_authorized_key}"
     cluster_dns_service_ip = "${cidrhost(var.service_cidr, 10)}"
     cluster_domain_suffix  = "${var.cluster_domain_suffix}"
+    cloud_provider         = "${var.cloud_provider}"
   }
 }
 

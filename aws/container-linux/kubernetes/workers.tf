@@ -12,10 +12,14 @@ module "workers" {
   disk_size       = "${var.disk_size}"
   spot_price      = "${var.worker_price}"
 
+  iam_instance_profile = "${aws_iam_instance_profile.worker.name}"
+
   # configuration
+  cloud_provider        = "${var.cloud_provider}"
   kubeconfig            = "${module.bootkube.kubeconfig-kubelet}"
   ssh_authorized_key    = "${var.ssh_authorized_key}"
   service_cidr          = "${var.service_cidr}"
   cluster_domain_suffix = "${var.cluster_domain_suffix}"
   clc_snippets          = "${var.worker_clc_snippets}"
+  fqdn                  = "${local.fqdn}"
 }

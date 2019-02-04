@@ -5,6 +5,12 @@ variable "name" {
 
 # AWS
 
+variable "cloud_provider" {
+  type        = "string"
+  description = "Name of the cloud provider to start kubelet with (e.g. aws). Empty for none."
+  default     = "aws"
+}
+
 variable "vpc_id" {
   type        = "string"
   description = "Must be set to `vpc_id` output by cluster"
@@ -18,6 +24,11 @@ variable "subnet_ids" {
 variable "security_groups" {
   type        = "list"
   description = "Must be set to `worker_security_groups` output by cluster"
+}
+
+variable "iam_instance_profile" {
+  type        = "string"
+  description = "IAM Instance Profile for Worker nodes"
 }
 
 # instances
@@ -96,4 +107,9 @@ variable "cluster_domain_suffix" {
   description = "Queries for domains with the suffix will be answered by coredns. Default is cluster.local (e.g. foo.default.svc.cluster.local) "
   type        = "string"
   default     = "cluster.local"
+}
+
+variable "fqdn" {
+  type        = "string"
+  description = "The cluster FQDN"
 }
